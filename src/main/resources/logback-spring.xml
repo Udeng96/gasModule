@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <property name="LOG_DIR" value="./logs"/>
+    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
+
+    <!-- ==================== Console ==================== -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ==================== System Log (시스템 로그) ==================== -->
+    <!-- DB 연결, 폴링, 에러, 스케줄러 등 애플리케이션 운영 로그 -->
+    <appender name="SYSTEM_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/system.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/system.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>500MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ==================== Event Log (이벤트 로그) ==================== -->
+    <!-- L1/L2/L3 발생/해제 등 가스 감지 비즈니스 이벤트 전용 -->
+    <appender name="EVENT_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/event.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/event.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>90</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ==================== Logger 설정 ==================== -->
+
+    <!-- 이벤트 전용 로거 (가스 감지 비즈니스 로그) -->
+    <logger name="EVENT" level="INFO" additivity="false">
+        <appender-ref ref="EVENT_FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
+    <!-- 시스템 전체 (기본) -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="SYSTEM_FILE"/>
+    </root>
+
+</configuration>
